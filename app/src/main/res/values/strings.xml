@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Remote File Manager</string>
+    <string name="refresh_string">Refresh</string>
+    <string name="no_app_found_string">No app found to open this file</string>
+    <string name="download_string">Download</string>
+    <string name="not_granted_perm">Cannot continue because permission hasn\'t been granted</string>
 </resources>
