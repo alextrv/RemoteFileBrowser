@@ -3,4 +3,7 @@
     <item
         android:id="@+id/context_download"
         android:title="@string/download_string"/>
+    <item
+        android:id="@+id/context_open_in_browser"
+        android:title="@string/open_in_browser_string"/>
 </menu>

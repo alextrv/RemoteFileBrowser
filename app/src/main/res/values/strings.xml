@@ -4,4 +4,5 @@
     <string name="no_app_found_string">No app found to open this file</string>
     <string name="download_string">Download</string>
     <string name="not_granted_perm">Cannot continue because permission hasn\'t been granted</string>
+    <string name="open_in_browser_string">Open in Browser</string>
 </resources>
