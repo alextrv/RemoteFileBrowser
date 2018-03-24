@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
@@ -46,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivityTAG";
     private static final int PERM_EXT_STORAGE_CODE = 1;
 
-    private static final String URL_KEY = "urlKey";
+    private static final String PREF_URL_KEY = "prefUrlKey";
+    private static final String CURRENT_URL_KEY = "currentUrlKey";
     private static final String LIST_KEY = "listKey";
 
     private List<FileProperties> mFilesList = new ArrayList<>();
@@ -59,7 +61,8 @@ public class MainActivity extends AppCompatActivity {
 
     private int mSelectedItemPos;
 
-    private String mUrl;
+    private String mPrefURL;
+    private String mCurrentURL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +70,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(URL_KEY)) {
-                mUrl = savedInstanceState.getString(URL_KEY);
+            if (savedInstanceState.containsKey(PREF_URL_KEY)) {
+                mPrefURL = savedInstanceState.getString(PREF_URL_KEY);
+            }
+            if (savedInstanceState.containsKey(CURRENT_URL_KEY)) {
+                mCurrentURL = savedInstanceState.getString(CURRENT_URL_KEY);
             }
             if (savedInstanceState.containsKey(LIST_KEY)) {
                 mFilesList = savedInstanceState.getParcelableArrayList(LIST_KEY);
@@ -96,8 +102,8 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String url = mFilesList.get(position).getURL();
                 if (mFilesList.get(position).isDirectory()) {
-                    mUrl = url;
-                    getRemoteFilesList(mUrl);
+                    mCurrentURL = url;
+                    getRemoteFileList(mCurrentURL);
                 } else {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setDataAndType(Uri.parse(url), mFilesList.get(position).getType());
@@ -167,9 +173,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                getRemoteFilesList(mUrl);
+                getRemoteFileList(mCurrentURL);
+                return true;
+            case R.id.action_settings:
+                intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -190,12 +201,25 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString(URL_KEY, mUrl);
+        outState.putString(PREF_URL_KEY, mPrefURL);
+        outState.putString(CURRENT_URL_KEY, mCurrentURL);
         outState.putParcelableArrayList(LIST_KEY, new ArrayList<Parcelable>(mFilesList));
         super.onSaveInstanceState(outState);
     }
 
-    public void getRemoteFilesList(final String url) {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String url = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(SettingsFragment.PREF_URL, "");
+        if (!url.equals(mPrefURL)) {
+            mPrefURL = url;
+            mCurrentURL = mPrefURL;
+            getRemoteFileList(mCurrentURL);
+        }
+    }
+
+    public void getRemoteFileList(final String url) {
         mFilesList.clear();
         updateList();
         mNetworkHandler.post(new Runnable() {

@@ -8,4 +8,9 @@
         android:title="@string/refresh_string"
         app:showAsAction="always"/>
 
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/settings"
+        app:showAsAction="never"/>
+
 </menu>

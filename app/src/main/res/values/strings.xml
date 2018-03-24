@@ -5,4 +5,6 @@
     <string name="download_string">Download</string>
     <string name="not_granted_perm">Cannot continue because permission hasn\'t been granted</string>
     <string name="open_in_browser_string">Open in Browser</string>
+    <string name="server_url">Server URL</string>
+    <string name="settings">Settings</string>
 </resources>
