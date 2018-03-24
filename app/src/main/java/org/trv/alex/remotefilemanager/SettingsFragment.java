@@ -11,6 +11,9 @@ public class SettingsFragment extends PreferenceFragment
 
     public static final String PREF_URL = "pref_URL";
 
+    private static final String HTTP_SCHEME = "http://";
+    private static final String HTTP_SEPARATOR = "/";
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,6 +27,21 @@ public class SettingsFragment extends PreferenceFragment
         if (PREF_URL.equals(key)) {
             String value = sharedPreferences.getString(key, "");
             Preference preference = findPreference(key);
+            boolean saveFixed = false;
+            if (!value.matches("https?://.*$")) {
+                value = HTTP_SCHEME + value;
+                saveFixed = true;
+            }
+            if (!value.matches(".*/$")) {
+                value = value + HTTP_SEPARATOR;
+                saveFixed = true;
+            }
+            if (saveFixed) {
+                sharedPreferences
+                        .edit()
+                        .putString(key, value)
+                        .apply();
+            }
             preference.setSummary(value);
         }
     }

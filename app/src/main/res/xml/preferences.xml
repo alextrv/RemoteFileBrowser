@@ -3,6 +3,8 @@
 
     <EditTextPreference
         android:key="pref_URL"
+        android:singleLine="true"
+        android:inputType="textWebEmailAddress"
         android:title="@string/server_url"/>
 
 </PreferenceScreen>
