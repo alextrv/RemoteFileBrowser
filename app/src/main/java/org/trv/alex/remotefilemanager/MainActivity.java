@@ -5,6 +5,7 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
@@ -19,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,9 +39,11 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -47,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivityTAG";
     private static final int PERM_EXT_STORAGE_CODE = 1;
+    private static final String PARENT_DIR_DOTS = "../";
 
     private static final String PREF_URL_KEY = "prefUrlKey";
     private static final String CURRENT_URL_KEY = "currentUrlKey";
@@ -92,8 +97,10 @@ public class MainActivity extends AppCompatActivity {
                         View view = super.getView(position, convertView, parent);
                         TextView text1 = view.findViewById(android.R.id.text1);
                         TextView text2 = view.findViewById(android.R.id.text2);
-                        text1.setText(mFilesList.get(position).getName());
-                        text2.setText(mFilesList.get(position).getSize());
+                        FileProperties fp = mFilesList.get(position);
+                        text1.setText(fp.getName());
+                        text2.setText(fp.isDirectory() ? fp.getType() : fp.getSize());
+                        text2.setTextColor(Color.GRAY);
                         return view;
                     }
                 };
@@ -230,6 +237,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (canGoBack()) {
+            try {
+                mCurrentURL = new URL(new URL(mCurrentURL), PARENT_DIR_DOTS).toString();
+                getRemoteFileList(mCurrentURL);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                super.onBackPressed();
+            }
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private boolean canGoBack() {
+        return !mPrefURL.equals(mCurrentURL);
+    }
+
     public void getRemoteFileList(final String url) {
         mFilesList.clear();
         updateList();
@@ -248,6 +274,9 @@ public class MainActivity extends AppCompatActivity {
                     Elements elements = doc.select("tbody > tr");
                     for (Element element : elements) {
                         String name = element.select(".n").text();
+                        if (name.equals(PARENT_DIR_DOTS)) {
+                            continue;
+                        }
                         String type = element.select(".t").text();
                         String href = element.select(".n > a").attr("href");
                         String absoluteURL = new URL(new URL(url), href).toString();
