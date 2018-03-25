@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -19,8 +20,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,12 +37,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -70,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
     private String mPrefURL;
     private String mCurrentURL;
+
+    private boolean mBackPressedTwice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -248,7 +251,17 @@ public class MainActivity extends AppCompatActivity {
                 super.onBackPressed();
             }
         } else {
-            super.onBackPressed();
+            if (mBackPressedTwice) {
+                super.onBackPressed();
+            }
+            mBackPressedTwice = true;
+            Toast.makeText(this, R.string.press_back_again, Toast.LENGTH_SHORT).show();
+            new Handler(getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mBackPressedTwice = false;
+                }
+            }, 2000);
         }
     }
 
@@ -289,6 +302,14 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             updateList();
+                            String dirName = new File(mCurrentURL).getName();
+                            try {
+                                dirName = URLDecoder.decode(dirName, "UTF-8");
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                                dirName = getString(R.string.app_name);
+                            }
+                            getSupportActionBar().setTitle(dirName);
                         }
                     });
                 } catch (IOException e) {
