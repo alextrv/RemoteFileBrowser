@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
             }
             if (savedInstanceState.containsKey(CURRENT_URL_KEY)) {
                 mCurrentURL = savedInstanceState.getString(CURRENT_URL_KEY);
+                setTitleBarText();
             }
             if (savedInstanceState.containsKey(LIST_KEY)) {
                 mFilesList = savedInstanceState.getParcelableArrayList(LIST_KEY);
@@ -302,14 +303,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             updateList();
-                            String dirName = new File(mCurrentURL).getName();
-                            try {
-                                dirName = URLDecoder.decode(dirName, "UTF-8");
-                            } catch (UnsupportedEncodingException e) {
-                                e.printStackTrace();
-                                dirName = getString(R.string.app_name);
-                            }
-                            getSupportActionBar().setTitle(dirName);
+                            setTitleBarText();
                         }
                     });
                 } catch (IOException e) {
@@ -317,6 +311,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void setTitleBarText() {
+        String dirName = new File(mCurrentURL).getName();
+        try {
+            dirName = URLDecoder.decode(dirName, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            dirName = getString(R.string.app_name);
+        }
+        getSupportActionBar().setTitle(dirName);
     }
 
     public void downloadFile(FileProperties file) {
