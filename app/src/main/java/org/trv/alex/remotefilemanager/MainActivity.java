@@ -120,13 +120,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setDataAndType(Uri.parse(url), mFilesList.get(position).getType());
-                    if (intent.resolveActivity(getPackageManager()) == null) {
-                        Toast.makeText(MainActivity.this,
-                                R.string.no_app_found_string,
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        startActivity(intent);
-                    }
+                    startActivity(Intent.createChooser(intent, null));
                 }
             }
         });
