@@ -1,4 +1,4 @@
-package org.trv.alex.remotefilemanager;
+package org.trv.alex.remotefilemanager.util;
 
 import android.os.Parcel;
 import android.os.Parcelable;

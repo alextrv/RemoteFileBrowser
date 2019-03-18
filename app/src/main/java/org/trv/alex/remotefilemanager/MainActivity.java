@@ -32,27 +32,22 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.trv.alex.remotefilemanager.util.FileProperties;
+import org.trv.alex.remotefilemanager.util.ParserFactory;
+import org.trv.alex.remotefilemanager.util.parser.Parser;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivityTAG";
     private static final int PERM_EXT_STORAGE_CODE = 1;
-    private static final String PARENT_DIR_DOTS = "../";
 
     private static final String PREF_URL_KEY = "prefUrlKey";
     private static final String CURRENT_URL_KEY = "currentUrlKey";
@@ -116,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                 String url = mFilesList.get(position).getURL();
                 if (mFilesList.get(position).isDirectory()) {
                     mCurrentURL = url;
-                    getRemoteFileList(mCurrentURL);
+                    fetchFilesList(mCurrentURL);
                 } else {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setDataAndType(Uri.parse(url), mFilesList.get(position).getType());
@@ -129,11 +124,11 @@ public class MainActivity extends AppCompatActivity {
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getRemoteFileList(mCurrentURL);
+                fetchFilesList(mCurrentURL);
             }
         });
 
-        mNetworkHanderThread = new HandlerThread("Network");
+        mNetworkHanderThread = new HandlerThread("Lighttpd");
         mNetworkHanderThread.start();
         mNetworkHandler = new Handler(mNetworkHanderThread.getLooper());
 
@@ -192,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent;
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                getRemoteFileList(mCurrentURL);
+                fetchFilesList(mCurrentURL);
                 return true;
             case R.id.action_settings:
                 intent = new Intent(this, SettingsActivity.class);
@@ -231,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
         if (!url.equals(mPrefURL)) {
             mPrefURL = url;
             mCurrentURL = mPrefURL;
-            getRemoteFileList(mCurrentURL);
+            fetchFilesList(mCurrentURL);
         }
     }
 
@@ -239,8 +234,8 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (canGoBack()) {
             try {
-                mCurrentURL = new URL(new URL(mCurrentURL), PARENT_DIR_DOTS).toString();
-                getRemoteFileList(mCurrentURL);
+                mCurrentURL = new URL(new URL(mCurrentURL), Parser.PARENT_DIR_DOTS).toString();
+                fetchFilesList(mCurrentURL);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
                 super.onBackPressed();
@@ -264,46 +259,16 @@ public class MainActivity extends AppCompatActivity {
         return !mPrefURL.equals(mCurrentURL);
     }
 
-    public void getRemoteFileList(final String url) {
+    private void fetchFilesList(final String url) {
         mFilesList.clear();
         updateList();
-        mNetworkHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    URLConnection connection = new URL(url).openConnection();
-                    Scanner scanner = new Scanner(connection.getInputStream());
-                    StringBuilder html = new StringBuilder();
-                    while (scanner.hasNextLine()) {
-                        html.append(scanner.nextLine());
-                    }
-//                    Document doc = Jsoup.connect(url).get();
-                    Document doc = Jsoup.parse(html.toString());
-                    Elements elements = doc.select("tbody > tr");
-                    for (Element element : elements) {
-                        String name = element.select(".n").text();
-                        if (name.equals(PARENT_DIR_DOTS)) {
-                            continue;
-                        }
-                        String type = element.select(".t").text();
-                        String href = element.select(".n > a").attr("href");
-                        String absoluteURL = new URL(new URL(url), href).toString();
-                        String modified = element.select(".m").text();
-                        String size = element.select(".s").text();
-                        FileProperties fp = new FileProperties(absoluteURL, name, modified, size, type);
-                        mFilesList.add(fp);
-                    }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateList();
-                            setTitleBarText();
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        mNetworkHandler.post(() -> {
+            mFilesList.addAll(
+                    ParserFactory.getInstance("Lighttpd").getFileList(url));
+            runOnUiThread(() -> {
+                updateList();
+                setTitleBarText();
+            });
         });
     }
 
