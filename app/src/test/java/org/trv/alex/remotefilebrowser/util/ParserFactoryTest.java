@@ -1,4 +1,4 @@
-package org.trv.alex.remotefilemanager.util;
+package org.trv.alex.remotefilebrowser.util;
 
 import org.junit.Test;
 

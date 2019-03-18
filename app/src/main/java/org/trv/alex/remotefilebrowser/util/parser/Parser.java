@@ -1,6 +1,6 @@
-package org.trv.alex.remotefilemanager.util.parser;
+package org.trv.alex.remotefilebrowser.util.parser;
 
-import org.trv.alex.remotefilemanager.util.FileProperties;
+import org.trv.alex.remotefilebrowser.util.FileProperties;
 
 import java.util.List;
 

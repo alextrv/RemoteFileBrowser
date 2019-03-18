@@ -1,4 +1,4 @@
-package org.trv.alex.remotefilemanager;
+package org.trv.alex.remotefilebrowser;
 
 import android.Manifest;
 import android.app.DownloadManager;
@@ -32,9 +32,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.trv.alex.remotefilemanager.util.FileProperties;
-import org.trv.alex.remotefilemanager.util.ParserFactory;
-import org.trv.alex.remotefilemanager.util.parser.Parser;
+import org.trv.alex.remotefilebrowser.util.FileProperties;
+import org.trv.alex.remotefilebrowser.util.ParserFactory;
+import org.trv.alex.remotefilebrowser.util.parser.Parser;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;

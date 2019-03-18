@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/swipe_container"
-    tools:context="org.trv.alex.remotefilemanager.MainActivity">
+    tools:context="org.trv.alex.remotefilebrowser.MainActivity">
 
     <ListView
         android:id="@+id/files_list_view"

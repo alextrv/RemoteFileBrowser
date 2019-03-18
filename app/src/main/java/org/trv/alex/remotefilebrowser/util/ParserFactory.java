@@ -1,6 +1,6 @@
-package org.trv.alex.remotefilemanager.util;
+package org.trv.alex.remotefilebrowser.util;
 
-import org.trv.alex.remotefilemanager.util.parser.Parser;
+import org.trv.alex.remotefilebrowser.util.parser.Parser;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;

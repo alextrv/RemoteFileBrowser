@@ -1,4 +1,4 @@
-package org.trv.alex.remotefilemanager;
+package org.trv.alex.remotefilebrowser;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;

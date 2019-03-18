@@ -1,10 +1,10 @@
-package org.trv.alex.remotefilemanager.util.parser;
+package org.trv.alex.remotefilebrowser.util.parser;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.trv.alex.remotefilemanager.util.FileProperties;
+import org.trv.alex.remotefilebrowser.util.FileProperties;
 
 import java.io.IOException;
 import java.net.URL;
